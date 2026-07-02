@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
-import { Layout } from './layout'
+import { Layout } from './pages/layouts/layout'
+import { AuthLayout } from './pages/layouts/AuthLayout'
 import { lazy, Suspense } from 'react'
 import ProtectedRoute from './protected-route'
 
@@ -19,8 +20,14 @@ export const router = createBrowserRouter([
     element: <Outlet />,
     children: [
       { index: true, element: <Navigate to="/auth/login" replace /> },
-      { path: 'auth/login', element: withSuspense(LoginPage) },
-      { path: 'auth/register', element: withSuspense(RegisterPage) },
+      {
+        path: 'auth',
+        element: <AuthLayout />,
+        children: [
+          { path: 'login', element: withSuspense(LoginPage) },
+          { path: 'register', element: withSuspense(RegisterPage) },
+        ],
+      },
       {
         element: <ProtectedRoute />,
         children: [
