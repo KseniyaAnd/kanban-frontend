@@ -1,18 +1,20 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import resourcesToBackend from 'i18next-resources-to-backend'
+import HttpBackend from 'i18next-http-backend'
 
 void i18n
   .use(initReactI18next)
-  .use(
-    resourcesToBackend(
-      async (language: string, namespace: string): Promise<{ default: unknown }> =>
-        (await import(`./public/locales/${language}/${namespace}.json`)) as { default: unknown },
-    ),
-  )
+  .use(HttpBackend)
   .init({
+    lng: 'ru',
     fallbackLng: 'ru',
     supportedLngs: ['ru', 'en'],
+    defaultNS: 'translation',
+
+    backend: {
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
+    },
+
     interpolation: {
       escapeValue: false,
     },
