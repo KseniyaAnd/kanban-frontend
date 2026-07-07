@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
+import ErrorBoundary from './shared/components/ErrorBoundary'
+import './i18n'
 
 // Итого:
 // 1. Использовать MUI библиотеку для UI (настроить theme со всеми цветами и типографией)
@@ -15,7 +17,9 @@ const rootElement = document.getElementById('root')
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </React.StrictMode>,
   )
 }
