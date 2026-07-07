@@ -3,6 +3,7 @@ import { Box, IconButton, useTheme } from '@mui/material'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
 import { useColorMode } from '../../context/ThemeContext'
+import { LanguageSelector } from '../../shared/components/LanguageSelector'
 
 export function AuthLayout() {
   const theme = useTheme()
@@ -21,6 +22,7 @@ export function AuthLayout() {
       }}
     >
       <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
+        <LanguageSelector />
         <IconButton onClick={colorMode.toggleColorMode} color="inherit">
           {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>

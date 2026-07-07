@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
-import { Layout } from './pages/layouts/layout'
+import { Layout } from './pages/layouts/Layout'
 import { AuthLayout } from './pages/layouts/AuthLayout'
 import { lazy, Suspense } from 'react'
 import ProtectedRoute from './protected-route'
