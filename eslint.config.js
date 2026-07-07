@@ -6,11 +6,14 @@ import prettierPlugin from 'eslint-plugin-prettier'
 
 export default tseslint.config(
   { ignores: ['dist', 'src/routeTree.gen.ts', '*.config.ts', '*.config.js'] },
+  
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   
   {
-    plugins: { 'react-hooks': reactHooks },
+    plugins: { 
+      'react-hooks': reactHooks 
+    },
     rules: {
       ...reactHooks.configs.recommended.rules,
       '@typescript-eslint/no-misused-promises': 'off',
@@ -22,7 +25,6 @@ export default tseslint.config(
       },
     },
   },
-
   {
     plugins: {
       prettier: prettierPlugin,
@@ -33,8 +35,10 @@ export default tseslint.config(
         {
           semi: false,
           singleQuote: true,
+          tabWidth: 2,
           trailingComma: 'all',
-        }
+          printWidth: 100,
+        },
       ],
     },
   },
