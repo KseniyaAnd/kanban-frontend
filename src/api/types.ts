@@ -1,22 +1,16 @@
-export interface User {
-  id: string
-  email: string
-  name: string
-  createdAt: string
-  updatedAt: string
+import { type InternalAxiosRequestConfig } from 'axios'
+
+export interface RetryableRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean
 }
 
-export interface LoginResponse {
-  user: User
-  accessToken: string
-  refreshToken: string
+export interface RefreshSubscriber {
+  resolve: (token: string) => void
+  reject: (reason: unknown) => void
 }
 
-export interface RegisterResponse {
-  message: string
-}
-
-export interface RefreshTokenResponse {
-  accessToken: string
-  refreshToken: string
+export interface AuthStoreState {
+  token: string | null
+  refreshToken: () => Promise<string>
+  logout?: () => void
 }
