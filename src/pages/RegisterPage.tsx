@@ -6,6 +6,7 @@ import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TextField, Button, Paper, Typography, Box, Link, CircularProgress } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { useMemo } from 'react'
 
 type RegisterResponse = { message: string }
 
@@ -13,19 +14,25 @@ export default function RegisterPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const registerSchema = z
-    .object({
-      email: z.email({ error: t('auth.validation.emailInvalid') }),
-      name: z.string({ error: t('auth.validation.nameRequired') }),
-      password: z
-        .string({ error: t('auth.validation.passwordRequired') })
-        .min(6, { error: t('auth.validation.passwordMin') }),
-      passwordRepeat: z.string().min(1, { message: t('auth.validation.passwordRepeatRequired') }),
-    })
-    .refine((data) => data.password === data.passwordRepeat, {
-      message: t('auth.validation.passwordsDontMatch'),
-      path: ['passwordRepeat'],
-    })
+  const registerSchema = useMemo(
+    () =>
+      z
+        .object({
+          email: z.email({ error: t('auth.validation.emailInvalid') }),
+          name: z.string({ error: t('auth.validation.nameRequired') }),
+          password: z
+            .string({ error: t('auth.validation.passwordRequired') })
+            .min(6, { error: t('auth.validation.passwordMin') }),
+          passwordRepeat: z
+            .string()
+            .min(1, { message: t('auth.validation.passwordRepeatRequired') }),
+        })
+        .refine((data) => data.password === data.passwordRepeat, {
+          message: t('auth.validation.passwordsDontMatch'),
+          path: ['passwordRepeat'],
+        }),
+    [t],
+  )
 
   type RegisterForm = z.infer<typeof registerSchema>
 
@@ -50,13 +57,17 @@ export default function RegisterPage() {
   } = useMutation({
     mutationFn: (data: RegisterForm) =>
       apiClient.post<RegisterResponse>('/auth/register', data).then((res) => res.data),
-    onSuccess: () => {
-      void navigate('/auth/login')
+    onSuccess: async () => {
+      await navigate('/auth/login')
     },
     onError: (err) => {
       console.error('Ошибка при регистрации:', err)
     },
   })
+
+  const onSubmit = (data: RegisterForm) => {
+    registerUser(data)
+  }
 
   return (
     <Paper
@@ -75,9 +86,7 @@ export default function RegisterPage() {
 
       <Box
         component="form"
-        onSubmit={handleSubmit((data: RegisterForm) => {
-          registerUser(data)
-        })}
+        onSubmit={handleSubmit(onSubmit)}
         noValidate
         sx={{
           display: 'flex',

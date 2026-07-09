@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { TextField, Button, Paper, Typography, Box, Link, CircularProgress } from '@mui/material'
 import { useAuthStore } from '../store/useAuthStore'
 import { useTranslation } from 'react-i18next'
+import { useMemo } from 'react'
 
 type AuthResponse = { accessToken: string; refreshToken: string }
 
@@ -15,12 +16,16 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const setToken = useAuthStore((state) => state.setToken)
 
-  const loginSchema = z.object({
-    email: z.email({ error: t('auth.validation.emailInvalid') }),
-    password: z
-      .string({ error: t('auth.validation.passwordRequired') })
-      .min(6, { error: t('auth.validation.passwordMin') }),
-  })
+  const loginSchema = useMemo(
+    () =>
+      z.object({
+        email: z.email({ error: t('auth.validation.emailInvalid') }),
+        password: z
+          .string({ error: t('auth.validation.passwordRequired') })
+          .min(6, { error: t('auth.validation.passwordMin') }),
+      }),
+    [t],
+  )
 
   type LoginForm = z.infer<typeof loginSchema>
 
@@ -43,14 +48,18 @@ export default function LoginPage() {
   } = useMutation({
     mutationFn: (data: LoginForm) =>
       apiClient.post<AuthResponse>('/auth/login', data).then((res) => res.data),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setToken(data.accessToken)
-      void navigate('/boards')
+      await navigate('/boards')
     },
     onError: (err) => {
       console.error('Ошибка при входе:', err)
     },
   })
+
+  const onSubmit = (data: LoginForm) => {
+    login(data)
+  }
 
   return (
     <Paper
@@ -69,9 +78,7 @@ export default function LoginPage() {
 
       <Box
         component="form"
-        onSubmit={handleSubmit((data) => {
-          login(data)
-        })}
+        onSubmit={handleSubmit(onSubmit)}
         noValidate
         sx={{
           display: 'flex',

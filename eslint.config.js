@@ -25,23 +25,6 @@ export default tseslint.config(
       },
     },
   },
-  {
-    plugins: {
-      prettier: prettierPlugin,
-    },
-    rules: {
-      'prettier/prettier': [
-        'error',
-        {
-          semi: false,
-          singleQuote: true,
-          tabWidth: 2,
-          trailingComma: 'all',
-          printWidth: 100,
-        },
-      ],
-    },
-  },
 
   prettierConfig,
 )

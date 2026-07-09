@@ -2,7 +2,7 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import HttpBackend from 'i18next-http-backend'
 
-void i18n
+await i18n
   .use(initReactI18next)
   .use(HttpBackend)
   .init({
@@ -17,6 +17,10 @@ void i18n
 
     interpolation: {
       escapeValue: false,
+    },
+
+    react: {
+      useSuspense: false,
     },
   })
 
