@@ -29,9 +29,19 @@
       "nameRequired": "Имя обязательно для заполнения"
     }
   },
+  "profile": {
+    "title": "Профиль",
+    "edit": "Редактировать",
+    "cancel": "Отмена",
+    "save": "Сохранить"
+  },
   "errors": {
     "boundaryTitle": "Что-то пошло не так.",
     "reloadButton": "Обновить страницу",
-    "logCaught": "ErrorBoundary поймал ошибку:"
+    "logCaught": "ErrorBoundary поймал ошибку:",
+    "profileLoad": "Ошибка при загрузке данных профиля",
+    "profileUpdate": "Не удалось сохранить изменения",
+    "consoleUpdateError": "Ошибка изменения:",
+    "consoleLoginError": "Ошибка при входе:"
   }
 }
