@@ -29,9 +29,19 @@
       "nameRequired": "Name is required"
     }
   },
+  "profile": {
+    "title": "Profile",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "errors": {
     "boundaryTitle": "Something went wrong.",
     "reloadButton": "Reload page",
-    "logCaught": "ErrorBoundary caught an error:"
+    "logCaught": "ErrorBoundary caught an error:",
+    "profileLoad": "Error loading profile data",
+    "profileUpdate": "Failed to save changes",
+    "consoleUpdateError": "Update error:",
+    "consoleLoginError": "Login error:"
   }
 }

@@ -3,6 +3,7 @@ import { Layout } from './pages/layouts/Layout'
 import { AuthLayout } from './pages/layouts/AuthLayout'
 import { lazy, Suspense } from 'react'
 import ProtectedRoute from './protected-route'
+import ProfilePage from './pages/ProfilePage'
 
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
@@ -35,7 +36,7 @@ export const router = createBrowserRouter([
             element: <Layout />,
             children: [
               { path: 'boards', element: withSuspense(BoardsPage) },
-              // { path: 'profile', element: withSuspense(ProfilePage)},
+              { path: 'profile', element: withSuspense(ProfilePage) },
             ],
           },
         ],

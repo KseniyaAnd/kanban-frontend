@@ -53,7 +53,7 @@ export default function LoginPage() {
       await navigate('/boards')
     },
     onError: (err) => {
-      console.error('Ошибка при входе:', err)
+      console.error(t('errors.consoleLoginError'), err)
     },
   })
 
