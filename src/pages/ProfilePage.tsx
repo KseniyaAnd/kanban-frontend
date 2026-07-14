@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -54,18 +54,26 @@ export default function ProfilePage() {
     },
   })
 
-  const { isLoading: isProfileLoading, isError: isProfileError } = useQuery({
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+  } = useQuery({
     queryKey: ['userProfile'],
     queryFn: () =>
       apiClient.get<UserProfileResponse>('/users/profile').then((res) => {
-        const data = res.data
-        reset({
-          email: data.email,
-          name: data.name,
-        })
-        return data
+        return res.data
       }),
   })
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        email: profile.email,
+        name: profile.name,
+      })
+    }
+  }, [profile, reset])
 
   const {
     mutate: updateProfile,
@@ -116,70 +124,70 @@ export default function ProfilePage() {
           </Alert>
         )}
 
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 2 }}>
-          <Stack spacing={3}>
-            <TextField
-              {...register('email')}
-              label={t('auth.fields.email')}
-              type="email"
-              fullWidth
-              disabled={true}
-              slotProps={{
-                input: {
-                  readOnly: true,
-                },
-              }}
-              variant="filled"
-            />
+        <Stack
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          sx={{ mt: 2 }}
+          spacing={3}
+        >
+          <TextField
+            {...register('email')}
+            label={t('auth.fields.email')}
+            type="email"
+            fullWidth
+            disabled={true}
+            slotProps={{
+              input: {
+                readOnly: true,
+              },
+            }}
+            variant="filled"
+          />
 
-            <TextField
-              {...register('name')}
-              label={t('auth.fields.name')}
-              type="text"
-              fullWidth
-              disabled={!isEditing}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-              variant={isEditing ? 'outlined' : 'filled'}
-            />
+          <TextField
+            {...register('name')}
+            label={t('auth.fields.name')}
+            type="text"
+            fullWidth
+            disabled={!isEditing}
+            error={!!errors.name}
+            helperText={errors.name?.message}
+            variant={isEditing ? 'outlined' : 'filled'}
+          />
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-              {!isEditing ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+            {!isEditing ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  setIsEditing(true)
+                }}
+              >
+                {t('profile.edit')}
+              </Button>
+            ) : (
+              <>
                 <Button
-                  variant="contained"
-                  color="primary"
+                  type="button"
+                  variant="outlined"
+                  color="inherit"
                   onClick={() => {
-                    setIsEditing(true)
+                    setIsEditing(false)
+                    reset()
                   }}
+                  disabled={isUpdating}
                 >
-                  {t('profile.edit')}
+                  {t('profile.cancel')}
                 </Button>
-              ) : (
-                <>
-                  <Button
-                    type="button"
-                    variant="outlined"
-                    color="inherit"
-                    onClick={() => {
-                      setIsEditing(false)
-                      reset()
-                    }}
-                    disabled={isUpdating}
-                  >
-                    {t('profile.cancel')}
-                  </Button>
-                  <Button type="submit" variant="contained" color="success" disabled={isUpdating}>
-                    {isUpdating ? (
-                      <CircularProgress size={24} color="inherit" />
-                    ) : (
-                      t('profile.save')
-                    )}
-                  </Button>
-                </>
-              )}
-            </Box>
-          </Stack>
-        </Box>
+                <Button type="submit" variant="contained" color="success" loading={isUpdating}>
+                  {t('profile.save')}
+                </Button>
+              </>
+            )}
+          </Box>
+        </Stack>
       </Paper>
     </Container>
   )
