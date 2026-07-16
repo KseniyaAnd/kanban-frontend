@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../api/client'
-import BoardCard from '../shared/components/BoardCard'
+import { BoardCard } from '../shared/components/BoardCard'
 import type { Board } from '../shared/interfaces/Board'
 import { Grid, Container, Typography, CircularProgress, Box, Alert } from '@mui/material'
 import { useTranslation } from 'react-i18next'

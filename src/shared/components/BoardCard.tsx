@@ -9,7 +9,7 @@ interface BoardCardProps {
   isDeleting: boolean
 }
 
-export default function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
+export function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
   const { t } = useTranslation()
 
   const handleDelete = (e: React.MouseEvent) => {
