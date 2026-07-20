@@ -7,9 +7,10 @@ interface BoardCardProps {
   board: Board
   onDelete: (id: string) => void
   isDeleting: boolean
+  onClick?: () => void
 }
 
-export function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
+export function BoardCard({ board, onDelete, isDeleting, onClick }: BoardCardProps) {
   const { t } = useTranslation()
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -30,6 +31,7 @@ export function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
 
   return (
     <Card
+      onClick={onClick}
       sx={{
         width: '100%',
         minWidth: 240,

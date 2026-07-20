@@ -61,7 +61,7 @@ export default function RegisterPage() {
       await navigate('/auth/login')
     },
     onError: (err) => {
-      console.error('Ошибка при регистрации:', err)
+      console.error(t('errors.consoleRegisterError'), err)
     },
   })
 

@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage'
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 const BoardsPage = lazy(() => import('./pages/BoardsPage'))
+const BoardDetailPage = lazy(() => import('./pages/BoardDetailPage'))
 
 const withSuspense = (Component: React.ComponentType) => (
   <Suspense fallback={<div>Загрузка...</div>}>
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
             element: <Layout />,
             children: [
               { path: 'boards', element: withSuspense(BoardsPage) },
+              { path: 'boards/:id', element: withSuspense(BoardDetailPage) },
               { path: 'profile', element: withSuspense(ProfilePage) },
             ],
           },

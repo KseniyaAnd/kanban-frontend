@@ -4,10 +4,12 @@ import { BoardCard } from '../shared/components/BoardCard'
 import type { Board } from '../shared/interfaces/Board'
 import { Grid, Container, Typography, CircularProgress, Box, Alert } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
 export default function BoardsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const {
     data,
@@ -63,7 +65,12 @@ export default function BoardsPage() {
         <Grid container spacing={2}>
           {data?.boards.map((board) => (
             <Grid key={board.id} size={{ lg: 3 }}>
-              <BoardCard board={board} onDelete={deleteBoard} isDeleting={isBoardDeleteLoading} />
+              <BoardCard
+                board={board}
+                onDelete={deleteBoard}
+                isDeleting={isBoardDeleteLoading}
+                onClick={() => navigate(`/boards/${board.id}`)}
+              />
             </Grid>
           ))}
         </Grid>
