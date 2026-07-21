@@ -285,7 +285,7 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
             <TextField
               autoFocus
               margin="dense"
-              label={t('auth.fields.title')}
+              label={t('fields.title')}
               type="text"
               fullWidth
               variant="outlined"
@@ -301,7 +301,7 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
             />
             <TextField
               margin="dense"
-              label={t('auth.fields.description')}
+              label={t('fields.description')}
               type="text"
               fullWidth
               multiline

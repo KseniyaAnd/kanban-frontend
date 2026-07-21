@@ -18,17 +18,15 @@ export default function RegisterPage() {
     () =>
       z
         .object({
-          email: z.email({ error: t('auth.validation.emailInvalid') }),
-          name: z.string({ error: t('auth.validation.nameRequired') }),
+          email: z.email({ error: t('validation.emailInvalid') }),
+          name: z.string({ error: t('validation.nameRequired') }),
           password: z
-            .string({ error: t('auth.validation.passwordRequired') })
-            .min(6, { error: t('auth.validation.passwordMin') }),
-          passwordRepeat: z
-            .string()
-            .min(1, { message: t('auth.validation.passwordRepeatRequired') }),
+            .string({ error: t('validation.passwordRequired') })
+            .min(6, { error: t('validation.passwordMin') }),
+          passwordRepeat: z.string().min(1, { message: t('validation.passwordRepeatRequired') }),
         })
         .refine((data) => data.password === data.passwordRepeat, {
-          message: t('auth.validation.passwordsDontMatch'),
+          message: t('validation.passwordsDontMatch'),
           path: ['passwordRepeat'],
         }),
     [t],
@@ -61,7 +59,7 @@ export default function RegisterPage() {
       await navigate('/auth/login')
     },
     onError: (err) => {
-      console.error(t('errors.consoleRegisterError'), err)
+      console.error(t('consoleRegisterError'), err)
     },
   })
 
@@ -81,7 +79,7 @@ export default function RegisterPage() {
       }}
     >
       <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 3 }}>
-        {t('auth.register.title')}
+        {t('register.title')}
       </Typography>
 
       <Box
@@ -97,7 +95,7 @@ export default function RegisterPage() {
         <TextField
           {...register('email')}
           type="email"
-          label={t('auth.fields.email')}
+          label={t('fields.email')}
           variant="outlined"
           fullWidth
           error={!!errors.email}
@@ -107,7 +105,7 @@ export default function RegisterPage() {
         <TextField
           {...register('name')}
           type="text"
-          label={t('auth.fields.name')}
+          label={t('fields.name')}
           variant="outlined"
           fullWidth
           required
@@ -117,7 +115,7 @@ export default function RegisterPage() {
         <TextField
           {...register('password')}
           type="password"
-          label={t('auth.fields.password')}
+          label={t('fields.password')}
           variant="outlined"
           fullWidth
           required
@@ -128,7 +126,7 @@ export default function RegisterPage() {
         <TextField
           {...register('passwordRepeat')}
           type="password"
-          label={t('auth.fields.passwordRepeat')}
+          label={t('fields.passwordRepeat')}
           variant="outlined"
           fullWidth
           required
@@ -138,7 +136,7 @@ export default function RegisterPage() {
 
         {isError && (
           <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-            {t('auth.register.error')}
+            {t('register.error')}
           </Typography>
         )}
 
@@ -150,19 +148,19 @@ export default function RegisterPage() {
           disabled={isPending}
           sx={{ py: 1.2, fontWeight: 'bold', mt: 1 }}
         >
-          {isPending ? <CircularProgress size={24} color="inherit" /> : t('auth.register.submit')}
+          {isPending ? <CircularProgress size={24} color="inherit" /> : t('register.submit')}
         </Button>
       </Box>
 
       <Typography variant="body2" sx={{ mt: 3, color: 'text.secondary' }}>
-        {t('auth.register.hasAccount')}{' '}
+        {t('register.hasAccount')}{' '}
         <Link
           component={RouterLink}
           to="/auth/login"
           underline="hover"
           sx={{ fontWeight: 'medium' }}
         >
-          {t('auth.register.loginLink')}
+          {t('register.loginLink')}
         </Link>
       </Typography>
     </Paper>

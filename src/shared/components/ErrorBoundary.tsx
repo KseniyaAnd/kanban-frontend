@@ -22,7 +22,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error(i18n.t('errors.logCaught'), error, errorInfo)
+    console.error(i18n.t('logCaught', { ns: 'errors' }), error, errorInfo)
   }
 
   render(): ReactNode {
@@ -38,7 +38,7 @@ class ErrorBoundary extends Component<Props, State> {
             margin: '20px',
           }}
         >
-          <h2>{i18n.t('errors.boundaryTitle')}</h2>
+          <h2>{i18n.t('boundaryTitle', { ns: 'errors' })}</h2>
           <p>{this.state.error?.message || String(this.state.error)}</p>
           <button
             onClick={() => {
@@ -53,7 +53,7 @@ class ErrorBoundary extends Component<Props, State> {
               borderRadius: '4px',
             }}
           >
-            {i18n.t('errors.reloadButton')}
+            {i18n.t('reloadButton', { ns: 'errors' })}
           </button>
         </div>
       )

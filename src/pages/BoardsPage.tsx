@@ -31,7 +31,7 @@ export default function BoardsPage() {
       void queryClient.invalidateQueries({ queryKey: ['boards'] })
     },
     onError: (error) => {
-      console.error(t('boards.delete.consoleError'), error)
+      console.error(t('delete.consoleError'), error)
     },
   })
 
@@ -46,7 +46,7 @@ export default function BoardsPage() {
   if (isBoardsError) {
     return (
       <Container maxWidth="md">
-        <Alert severity="error">{t('boards.loadError')}</Alert>
+        <Alert severity="error">{t('loadError')}</Alert>
       </Container>
     )
   }
@@ -54,13 +54,13 @@ export default function BoardsPage() {
   return (
     <Container maxWidth="lg">
       <Typography variant="h4" gutterBottom>
-        {t('boards.title')}
+        {t('title')}
       </Typography>
 
-      {isBoardDeleteError && <Alert severity="error">{t('boards.delete.error')}</Alert>}
+      {isBoardDeleteError && <Alert severity="error">{t('delete.error')}</Alert>}
 
       {data?.boards.length === 0 ? (
-        <Typography>{t('boards.empty')}</Typography>
+        <Typography>{t('empty')}</Typography>
       ) : (
         <Grid container spacing={2}>
           {data?.boards.map((board) => (

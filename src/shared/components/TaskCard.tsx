@@ -157,7 +157,7 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
             <TextField
               autoFocus
               margin="dense"
-              label={t('auth.fields.title')}
+              label={t('fields.title')}
               type="text"
               fullWidth
               variant="outlined"
@@ -174,7 +174,7 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
             />
             <TextField
               margin="dense"
-              label={t('auth.fields.description')}
+              label={t('fields.description')}
               type="text"
               fullWidth
               multiline

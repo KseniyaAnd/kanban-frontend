@@ -1,0 +1,20 @@
+{
+  "errors": {
+    "boundaryTitle": "Something went wrong.",
+    "reloadButton": "Reload page",
+    "logCaught": "ErrorBoundary caught an error:",
+    "profileLoad": "Error loading profile data",
+    "profileUpdate": "Failed to save changes",
+    "consoleUpdateError": "Update error:",
+    "consoleLoginError": "Login error:",
+    "consoleRegisterError": "Registration error:"
+  },
+  "boundaryTitle": "Something went wrong.",
+  "reloadButton": "Reload page",
+  "logCaught": "ErrorBoundary caught an error:",
+  "profileLoad": "Error loading profile data",
+  "profileUpdate": "Failed to save changes",
+  "consoleUpdateError": "Update error:",
+  "consoleLoginError": "Login error:",
+  "consoleRegisterError": "Registration error:"
+}

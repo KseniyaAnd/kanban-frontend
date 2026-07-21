@@ -1,0 +1,20 @@
+{
+  "errors": {
+    "boundaryTitle": "Что-то пошло не так.",
+    "reloadButton": "Обновить страницу",
+    "logCaught": "ErrorBoundary поймал ошибку:",
+    "profileLoad": "Ошибка при загрузке данных профиля",
+    "profileUpdate": "Не удалось сохранить изменения",
+    "consoleUpdateError": "Ошибка изменения:",
+    "consoleLoginError": "Ошибка при входе:",
+    "consoleRegisterError": "Ошибка при регистрации:"
+  },
+  "boundaryTitle": "Что-то пошло не так.",
+  "reloadButton": "Обновить страницу",
+  "logCaught": "ErrorBoundary поймал ошибку:",
+  "profileLoad": "Ошибка при загрузке данных профиля",
+  "profileUpdate": "Не удалось сохранить изменения",
+  "consoleUpdateError": "Ошибка изменения:",
+  "consoleLoginError": "Ошибка при входе:",
+  "consoleRegisterError": "Ошибка при регистрации:"
+}

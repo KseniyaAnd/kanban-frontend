@@ -57,7 +57,7 @@ export default function BoardDetailPage() {
     queryKey: ['board', id],
     queryFn: () => {
       if (!id) {
-        return Promise.reject(new Error(t('boards.detail.missingIdError')))
+        return Promise.reject(new Error(t('detail.missingIdError')))
       }
 
       return apiClient.get<{ columns: Column[] }>(`/boards/${id}/columns`).then((res) => res.data)
@@ -73,7 +73,7 @@ export default function BoardDetailPage() {
       handleCloseModal()
     },
     onError: (err) => {
-      console.error(t('boards.detail.consoleCreateError'), err)
+      console.error(t('detail.consoleCreateError'), err)
     },
   })
 
@@ -95,7 +95,7 @@ export default function BoardDetailPage() {
   if (isBoardError) {
     return (
       <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Alert severity="error">{t('boards.detail.loadError')}</Alert>
+        <Alert severity="error">{t('detail.loadError')}</Alert>
       </Container>
     )
   }
@@ -112,15 +112,15 @@ export default function BoardDetailPage() {
     <Container maxWidth="xl" sx={{ mt: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-          {t('boards.detail.title')}
+          {t('detail.title')}
         </Typography>
         <Button variant="contained" color="primary" onClick={handleOpenModal}>
-          {t('boards.detail.addColumn')}
+          {t('detail.addColumn')}
         </Button>
       </Box>
 
       {columns.length === 0 ? (
-        <Typography color="text.secondary">{t('boards.detail.emptyColumns')}</Typography>
+        <Typography color="text.secondary">{t('detail.emptyColumns')}</Typography>
       ) : (
         <Box
           sx={{
@@ -144,12 +144,12 @@ export default function BoardDetailPage() {
 
       <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="xs">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogTitle>{t('boards.detail.newColumnTitle')}</DialogTitle>
+          <DialogTitle>{t('detail.newColumnTitle')}</DialogTitle>
           <DialogContent>
             <TextField
               autoFocus
               margin="dense"
-              label={t('boards.detail.columnNameLabel')}
+              label={t('detail.columnNameLabel')}
               type="text"
               fullWidth
               variant="outlined"
@@ -157,9 +157,9 @@ export default function BoardDetailPage() {
               error={!!errors.title}
               helperText={errors.title?.message}
               {...register('title', {
-                required: t('boards.detail.columnNameRequired') || 'Title is required',
+                required: t('detail.columnNameRequired') || 'Title is required',
                 validate: (value) =>
-                  !!value.trim() || t('boards.detail.columnNameEmpty') || 'Title cannot be blank',
+                  !!value.trim() || t('detail.columnNameEmpty') || 'Title cannot be blank',
               })}
             />
           </DialogContent>
@@ -168,7 +168,7 @@ export default function BoardDetailPage() {
               {t('profile.cancel')}
             </Button>
             <Button type="submit" variant="contained" disabled={isCreating || !isValid}>
-              {isCreating ? t('boards.detail.creatingButton') : t('boards.detail.createButton')}
+              {isCreating ? t('detail.creatingButton') : t('detail.createButton')}
             </Button>
           </DialogActions>
         </form>
