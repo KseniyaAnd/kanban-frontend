@@ -18,8 +18,13 @@ import type { Column } from '../shared/interfaces/Column'
 import { BoardColumn } from '../shared/components/BoardColumn'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useForm } from 'react-hook-form'
 
 interface CreateColumnDto {
+  title: string
+}
+
+interface FormValues {
   title: string
 }
 
@@ -29,9 +34,20 @@ export default function BoardDetailPage() {
   const queryClient = useQueryClient()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [newColumnTitle, setNewColumnTitle] = useState('')
 
   const boardId = id ?? ''
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<FormValues>({
+    mode: 'onChange',
+    defaultValues: {
+      title: '',
+    },
+  })
 
   const {
     data,
@@ -66,16 +82,14 @@ export default function BoardDetailPage() {
   const handleOpenModal = () => {
     setIsModalOpen(true)
   }
+
   const handleCloseModal = () => {
     setIsModalOpen(false)
-    setNewColumnTitle('')
+    reset()
   }
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!newColumnTitle.trim()) return
-
-    createColumn({ title: newColumnTitle.trim() })
+  const onSubmit = (formData: FormValues) => {
+    createColumn({ title: formData.title.trim() })
   }
 
   if (isBoardError) {
@@ -129,7 +143,7 @@ export default function BoardDetailPage() {
       )}
 
       <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="xs">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <DialogTitle>{t('boards.detail.newColumnTitle')}</DialogTitle>
           <DialogContent>
             <TextField
@@ -139,23 +153,21 @@ export default function BoardDetailPage() {
               type="text"
               fullWidth
               variant="outlined"
-              value={newColumnTitle}
-              onChange={(e) => {
-                setNewColumnTitle(e.target.value)
-              }}
               disabled={isCreating}
-              required
+              error={!!errors.title}
+              helperText={errors.title?.message}
+              {...register('title', {
+                required: t('boards.detail.columnNameRequired') || 'Title is required',
+                validate: (value) =>
+                  !!value.trim() || t('boards.detail.columnNameEmpty') || 'Title cannot be blank',
+              })}
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseModal} disabled={isCreating}>
               {t('profile.cancel')}
             </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={isCreating || !newColumnTitle.trim()}
-            >
+            <Button type="submit" variant="contained" disabled={isCreating || !isValid}>
               {isCreating ? t('boards.detail.creatingButton') : t('boards.detail.createButton')}
             </Button>
           </DialogActions>

@@ -22,6 +22,7 @@ import type { Task } from '../interfaces/Task'
 import type { Column } from '../interfaces/Column'
 import { TaskCard } from './TaskCard'
 import { useTranslation } from 'react-i18next'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 
 interface BoardColumnProps {
   boardId: string
@@ -47,8 +48,20 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
   const [editedTitle, setEditedTitle] = useState(title)
 
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
-  const [newTaskTitle, setNewTaskTitle] = useState('')
-  const [newTaskDescription, setNewTaskDescription] = useState('')
+
+  const {
+    register: registerTask,
+    handleSubmit: handleTaskSubmit,
+    reset: resetTaskForm,
+    formState: { errors: taskErrors, isValid: isTaskFormValid },
+  } = useForm<CreateTaskDto>({
+    mode: 'onChange',
+    defaultValues: {
+      title: '',
+      description: '',
+      priority: 'LOW',
+    },
+  })
 
   const tasksQueryKey = ['board', boardId, 'columns', columnId, 'tasks']
 
@@ -138,18 +151,14 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
 
   const handleCloseTaskModal = () => {
     setIsTaskModalOpen(false)
-    setNewTaskTitle('')
-    setNewTaskDescription('')
+    resetTaskForm()
   }
 
-  const handleTaskSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault()
-    if (!newTaskTitle.trim()) return
-
+  const onTaskSubmit: SubmitHandler<CreateTaskDto> = (formData) => {
     createTask({
-      title: newTaskTitle.trim(),
-      description: newTaskDescription.trim() || undefined,
-      priority: 'LOW',
+      title: formData.title.trim(),
+      description: formData.description?.trim() || undefined,
+      priority: formData.priority || 'LOW',
     })
   }
 
@@ -270,7 +279,7 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
       </Button>
 
       <Dialog open={isTaskModalOpen} onClose={handleCloseTaskModal} fullWidth maxWidth="xs">
-        <form onSubmit={handleTaskSubmit}>
+        <form onSubmit={handleTaskSubmit(onTaskSubmit)}>
           <DialogTitle>{t('tasks.new')}</DialogTitle>
           <DialogContent>
             <TextField
@@ -280,12 +289,14 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
               type="text"
               fullWidth
               variant="outlined"
-              value={newTaskTitle}
-              onChange={(e) => {
-                setNewTaskTitle(e.target.value)
-              }}
               disabled={isCreatingTask}
-              required
+              error={!!taskErrors.title}
+              helperText={taskErrors.title?.message}
+              {...registerTask('title', {
+                required: t('tasks.titleRequired') || 'Title is required',
+                validate: (value) =>
+                  !!value.trim() || t('tasks.titleEmpty') || 'Title cannot be blank',
+              })}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -296,22 +307,15 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
               multiline
               rows={3}
               variant="outlined"
-              value={newTaskDescription}
-              onChange={(e) => {
-                setNewTaskDescription(e.target.value)
-              }}
               disabled={isCreatingTask}
+              {...registerTask('description')}
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseTaskModal} disabled={isCreatingTask}>
               {t('profile.cancel')}
             </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={isCreatingTask || !newTaskTitle.trim()}
-            >
+            <Button type="submit" variant="contained" disabled={isCreatingTask || !isTaskFormValid}>
               {isCreatingTask ? t('tasks.creating') : t('profile.save')}
             </Button>
           </DialogActions>

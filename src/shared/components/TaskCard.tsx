@@ -17,6 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { apiClient } from '../../api/client'
 import type { Task } from '../interfaces/Task'
 import { useTranslation } from 'react-i18next'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 
 interface TaskCardProps {
   boardId: string
@@ -33,8 +34,19 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
   const { t } = useTranslation(['board', 'auth', 'profile'])
   const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [taskTitle, setTaskTitle] = useState(task.title)
-  const [taskDescription, setTaskDescription] = useState(task.description || '')
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<UpdateTaskDto>({
+    mode: 'onChange',
+    defaultValues: {
+      title: task.title,
+      description: task.description || '',
+    },
+  })
 
   const tasksQueryKey = ['board', boardId, 'columns', columnId, 'tasks']
 
@@ -67,8 +79,10 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
   })
 
   const handleOpenModal = () => {
-    setTaskTitle(task.title)
-    setTaskDescription(task.description || '')
+    reset({
+      title: task.title,
+      description: task.description || '',
+    })
     setIsModalOpen(true)
   }
 
@@ -76,13 +90,10 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
     setIsModalOpen(false)
   }
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault()
-    if (!taskTitle.trim()) return
-
+  const onSubmit: SubmitHandler<UpdateTaskDto> = (formData) => {
     updateTask({
-      title: taskTitle.trim(),
-      description: taskDescription.trim() || undefined,
+      title: formData.title.trim(),
+      description: formData.description?.trim() || undefined,
     })
   }
 
@@ -140,7 +151,7 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
       </Paper>
 
       <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="xs">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <DialogTitle>{t('tasks.edit')}</DialogTitle>
           <DialogContent>
             <TextField
@@ -150,10 +161,13 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
               type="text"
               fullWidth
               variant="outlined"
-              value={taskTitle}
-              onChange={(e) => {
-                setTaskTitle(e.target.value)
-              }}
+              error={!!errors.title}
+              helperText={errors.title?.message}
+              {...register('title', {
+                required: t('tasks.titleRequired') || 'Title is required',
+                validate: (value) =>
+                  !!value.trim() || t('tasks.titleEmpty') || 'Title cannot be blank',
+              })}
               disabled={isUpdating}
               required
               sx={{ mb: 2 }}
@@ -166,10 +180,7 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
               multiline
               rows={3}
               variant="outlined"
-              value={taskDescription}
-              onChange={(e) => {
-                setTaskDescription(e.target.value)
-              }}
+              {...register('description')}
               disabled={isUpdating}
             />
           </DialogContent>
@@ -177,7 +188,7 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
             <Button onClick={handleCloseModal} disabled={isUpdating}>
               {t('profile.cancel')}
             </Button>
-            <Button type="submit" variant="contained" disabled={isUpdating || !taskTitle.trim()}>
+            <Button type="submit" variant="contained" disabled={isUpdating || !isValid}>
               {isUpdating ? t('tasks.saving') : t('profile.save')}
             </Button>
           </DialogActions>
