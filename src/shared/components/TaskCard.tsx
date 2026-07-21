@@ -11,6 +11,7 @@ import {
   TextField,
   DialogActions,
   Button,
+  alpha,
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -106,13 +107,24 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
   return (
     <>
       <Paper
+        elevation={1}
         sx={{
           p: 1.5,
-          backgroundColor: '#fff',
-          boxShadow: 1,
+          backgroundColor: (theme) =>
+            theme.palette.mode === 'dark'
+              ? alpha(theme.palette.common.white, 0.05)
+              : 'background.paper',
+          backgroundImage: 'none',
           position: 'relative',
           opacity: isDeleting ? 0.5 : 1,
           pointerEvents: isDeleting ? 'none' : 'auto',
+          transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
+          '&:hover': {
+            backgroundColor: (theme) =>
+              theme.palette.mode === 'dark'
+                ? alpha(theme.palette.common.white, 0.08)
+                : theme.palette.action.hover,
+          },
         }}
       >
         <Box
@@ -122,7 +134,8 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
             right: 4,
             display: 'flex',
             gap: 0.2,
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            backgroundColor: 'transparent',
+            backdropFilter: 'none',
             borderRadius: 1,
           }}
         >
@@ -135,7 +148,10 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
         </Box>
 
         <Box sx={{ pr: 6, mt: 0.5 }}>
-          <Typography variant="body1" sx={{ fontWeight: 500, wordBreak: 'break-word' }}>
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: 500, wordBreak: 'break-word', color: 'text.primary' }}
+          >
             {task.title}
           </Typography>
           {task.description && (

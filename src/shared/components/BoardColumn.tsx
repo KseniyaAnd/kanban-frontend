@@ -164,10 +164,11 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
 
   return (
     <Paper
+      elevation={2}
       sx={{
         p: 2,
         minHeight: 500,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: 'background.paper',
         width: 280,
         display: 'flex',
         flexDirection: 'column',
@@ -197,7 +198,7 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
             }}
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
-            sx={{ backgroundColor: '#fff' }}
+            sx={{ backgroundColor: 'background.default' }}
           />
         ) : (
           <>
@@ -266,12 +267,12 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
         fullWidth
         sx={{
           mt: 'auto',
-          borderColor: 'rgba(0, 0, 0, 0.12)',
-          color: 'text.secondary',
-          backgroundColor: '#fff',
+          borderColor: 'divider',
+          color: 'text.primary',
+          backgroundColor: 'action.hover',
           '&:hover': {
-            borderColor: 'rgba(0, 0, 0, 0.24)',
-            backgroundColor: '#fafafa',
+            borderColor: 'text.secondary',
+            backgroundColor: 'action.selected',
           },
         }}
       >
