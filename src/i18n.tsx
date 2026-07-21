@@ -10,6 +10,8 @@ await i18n
     fallbackLng: 'ru',
     supportedLngs: ['ru', 'en'],
     defaultNS: 'translation',
+    fallbackNS: ['translation'],
+    ns: ['translation', 'auth', 'board', 'profile', 'errors'],
 
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',

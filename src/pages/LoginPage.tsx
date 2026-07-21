@@ -12,7 +12,7 @@ import { useMemo } from 'react'
 type AuthResponse = { accessToken: string; refreshToken: string }
 
 export default function LoginPage() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['auth', 'errors'])
   const navigate = useNavigate()
   const setToken = useAuthStore((state) => state.setToken)
 

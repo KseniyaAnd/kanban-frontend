@@ -7,10 +7,11 @@ interface BoardCardProps {
   board: Board
   onDelete: (id: string) => void
   isDeleting: boolean
+  onClick?: () => void
 }
 
-export function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
-  const { t } = useTranslation()
+export function BoardCard({ board, onDelete, isDeleting, onClick }: BoardCardProps) {
+  const { t } = useTranslation('board')
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -19,7 +20,7 @@ export function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
 
     if (
       window.confirm(
-        t('boards.delete.confirm', {
+        t('delete.confirm', {
           title: board.title,
         }),
       )
@@ -30,6 +31,7 @@ export function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
 
   return (
     <Card
+      onClick={onClick}
       sx={{
         width: '100%',
         minWidth: 240,
@@ -41,7 +43,7 @@ export function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
       <IconButton
         onClick={handleDelete}
         disabled={isDeleting}
-        aria-label={t('boards.delete.ariaLabel')}
+        aria-label={t('delete.ariaLabel')}
         size="small"
         sx={{
           position: 'absolute',
@@ -58,13 +60,13 @@ export function BoardCard({ board, onDelete, isDeleting }: BoardCardProps) {
         </Typography>
 
         <Typography variant="body2" color="text.secondary">
-          {board.description || t('boards.noDescription')}
+          {board.description || t('noDescription')}
         </Typography>
       </CardContent>
 
       <Box sx={{ px: 2, pb: 2 }}>
         <Typography variant="caption">
-          {t('boards.updated')}: {new Date(board.updatedAt).toLocaleDateString()}
+          {t('updated')}: {new Date(board.updatedAt).toLocaleDateString()}
         </Typography>
       </Box>
     </Card>

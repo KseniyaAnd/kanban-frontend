@@ -18,7 +18,9 @@
       "email": "Email",
       "name": "Name",
       "password": "Password",
-      "passwordRepeat": "Confirm Password"
+      "passwordRepeat": "Confirm Password",
+      "title": "Title",
+      "description": "Description"
     },
     "validation": {
       "emailInvalid": "Invalid email format",
@@ -47,6 +49,36 @@
       "consoleError": "Error deleting board:"
     },
     "loadError": "Failed to load boards."
+  },
+  "columns": {
+    "delete": {
+      "confirm": "Are you sure you want to delete column \"{{title}}\" and all its tasks?",
+      "error": "Failed to delete column.",
+      "consoleError": "Error deleting column:"
+    },
+    "update": {
+      "consoleError": "Error updating column title:"
+    },
+    "loadError": "Error loading tasks"
+  },
+  "tasks": {
+    "empty": "No tasks",
+    "add": "Add task",
+    "new": "New task",
+    "edit": "Edit task",
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "delete": {
+      "confirm": "Are you sure you want to delete task \"{{title}}\"?",
+      "error": "Failed to delete task.",
+      "consoleError": "Error deleting task:"
+    },
+    "create": {
+      "consoleError": "Error creating task:"
+    },
+    "update": {
+      "consoleError": "Error updating task:"
+    }
   },
   "errors": {
     "boundaryTitle": "Something went wrong.",

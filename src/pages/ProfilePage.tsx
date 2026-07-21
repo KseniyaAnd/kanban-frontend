@@ -26,7 +26,7 @@ type UserProfileResponse = {
 }
 
 export default function ProfilePage() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['profile', 'auth', 'errors'])
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
 
@@ -34,7 +34,7 @@ export default function ProfilePage() {
     () =>
       z.object({
         email: z.string(),
-        name: z.string().min(1, { message: t('auth.validation.nameRequired') }),
+        name: z.string().min(1, { message: t('validation.nameRequired') }),
       }),
     [t],
   )
@@ -89,7 +89,7 @@ export default function ProfilePage() {
       setIsEditing(false)
     },
     onError: (err) => {
-      console.error(t('errors.consoleUpdateError'), err)
+      console.error(t('consoleUpdateError'), err)
     },
   })
 
@@ -109,18 +109,18 @@ export default function ProfilePage() {
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
-          {t('profile.title')}
+          {t('title')}
         </Typography>
 
         {isProfileError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {t('errors.profileLoad')}
+            {t('profileLoad')}
           </Alert>
         )}
 
         {isProfileUpdatingError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {t('errors.profileUpdate')}
+            {t('profileUpdate')}
           </Alert>
         )}
 
@@ -133,7 +133,7 @@ export default function ProfilePage() {
         >
           <TextField
             {...register('email')}
-            label={t('auth.fields.email')}
+            label={t('fields.email')}
             type="email"
             fullWidth
             disabled={true}
@@ -147,7 +147,7 @@ export default function ProfilePage() {
 
           <TextField
             {...register('name')}
-            label={t('auth.fields.name')}
+            label={t('fields.name')}
             type="text"
             fullWidth
             disabled={!isEditing}
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                   setIsEditing(true)
                 }}
               >
-                {t('profile.edit')}
+                {t('edit')}
               </Button>
             ) : (
               <>
@@ -179,10 +179,10 @@ export default function ProfilePage() {
                   }}
                   disabled={isUpdating}
                 >
-                  {t('profile.cancel')}
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" variant="contained" color="success" loading={isUpdating}>
-                  {t('profile.save')}
+                  {t('save')}
                 </Button>
               </>
             )}

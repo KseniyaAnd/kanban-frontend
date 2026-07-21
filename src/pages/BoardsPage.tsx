@@ -4,10 +4,12 @@ import { BoardCard } from '../shared/components/BoardCard'
 import type { Board } from '../shared/interfaces/Board'
 import { Grid, Container, Typography, CircularProgress, Box, Alert } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
 export default function BoardsPage() {
-  const { t } = useTranslation()
+  const { t } = useTranslation('board')
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const {
     data,
@@ -29,7 +31,7 @@ export default function BoardsPage() {
       void queryClient.invalidateQueries({ queryKey: ['boards'] })
     },
     onError: (error) => {
-      console.error(t('boards.delete.consoleError'), error)
+      console.error(t('delete.consoleError'), error)
     },
   })
 
@@ -44,7 +46,7 @@ export default function BoardsPage() {
   if (isBoardsError) {
     return (
       <Container maxWidth="md">
-        <Alert severity="error">{t('boards.loadError')}</Alert>
+        <Alert severity="error">{t('loadError')}</Alert>
       </Container>
     )
   }
@@ -52,18 +54,23 @@ export default function BoardsPage() {
   return (
     <Container maxWidth="lg">
       <Typography variant="h4" gutterBottom>
-        {t('boards.title')}
+        {t('title')}
       </Typography>
 
-      {isBoardDeleteError && <Alert severity="error">{t('boards.delete.error')}</Alert>}
+      {isBoardDeleteError && <Alert severity="error">{t('delete.error')}</Alert>}
 
       {data?.boards.length === 0 ? (
-        <Typography>{t('boards.empty')}</Typography>
+        <Typography>{t('empty')}</Typography>
       ) : (
         <Grid container spacing={2}>
           {data?.boards.map((board) => (
             <Grid key={board.id} size={{ lg: 3 }}>
-              <BoardCard board={board} onDelete={deleteBoard} isDeleting={isBoardDeleteLoading} />
+              <BoardCard
+                board={board}
+                onDelete={deleteBoard}
+                isDeleting={isBoardDeleteLoading}
+                onClick={() => navigate(`/boards/${board.id}`)}
+              />
             </Grid>
           ))}
         </Grid>
