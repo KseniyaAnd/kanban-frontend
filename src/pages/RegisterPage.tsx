@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 type RegisterResponse = { message: string }
 
 export default function RegisterPage() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['auth', 'errors'])
   const navigate = useNavigate()
 
   const registerSchema = useMemo(

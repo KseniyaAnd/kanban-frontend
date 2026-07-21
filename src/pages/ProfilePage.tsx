@@ -26,7 +26,7 @@ type UserProfileResponse = {
 }
 
 export default function ProfilePage() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['profile', 'auth', 'errors'])
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
 

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 export default function BoardsPage() {
-  const { t } = useTranslation()
+  const { t } = useTranslation('board')
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 

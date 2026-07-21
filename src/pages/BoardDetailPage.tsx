@@ -24,7 +24,7 @@ interface CreateColumnDto {
 }
 
 export default function BoardDetailPage() {
-  const { t } = useTranslation()
+  const { t } = useTranslation('board')
   const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
 

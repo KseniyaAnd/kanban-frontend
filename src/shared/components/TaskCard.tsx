@@ -30,7 +30,7 @@ interface UpdateTaskDto {
 }
 
 export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['board', 'auth', 'profile'])
   const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [taskTitle, setTaskTitle] = useState(task.title)
@@ -104,7 +104,6 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
           pointerEvents: isDeleting ? 'none' : 'auto',
         }}
       >
-        {/* Кнопки действий: теперь видны всегда */}
         <Box
           sx={{
             position: 'absolute',
@@ -124,7 +123,6 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
           </IconButton>
         </Box>
 
-        {/* Контент таски */}
         <Box sx={{ pr: 6, mt: 0.5 }}>
           <Typography variant="body1" sx={{ fontWeight: 500, wordBreak: 'break-word' }}>
             {task.title}
@@ -141,7 +139,6 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
         </Box>
       </Paper>
 
-      {/* Модальное окно редактирования таски */}
       <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="xs">
         <form onSubmit={handleSubmit}>
           <DialogTitle>{t('tasks.edit')}</DialogTitle>

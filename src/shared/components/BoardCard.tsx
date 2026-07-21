@@ -11,7 +11,7 @@ interface BoardCardProps {
 }
 
 export function BoardCard({ board, onDelete, isDeleting, onClick }: BoardCardProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation('board')
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation()

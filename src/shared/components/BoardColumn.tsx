@@ -40,7 +40,7 @@ interface CreateTaskDto {
 }
 
 export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['board', 'auth', 'profile'])
   const queryClient = useQueryClient()
 
   const [isEditing, setIsEditing] = useState(false)
@@ -238,7 +238,6 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
         </Alert>
       )}
 
-      {/* Список карточек задач */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flexGrow: 1, mb: 2 }}>
         {!isTasksLoading && !isTasksError && tasks.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', my: 4 }}>
