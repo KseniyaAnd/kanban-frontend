@@ -14,6 +14,16 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import type { Column } from '../shared/interfaces/Column'
 import { BoardColumn } from '../shared/components/BoardColumn'
 import { useState } from 'react'
@@ -36,6 +46,16 @@ export default function BoardDetailPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const boardId = id ?? ''
+  const queryKey = ['board', id]
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor),
+  )
 
   const {
     register,
@@ -65,6 +85,8 @@ export default function BoardDetailPage() {
     enabled: !!id,
   })
 
+  const columns = data?.columns || []
+
   const { mutate: createColumn, isPending: isCreating } = useMutation({
     mutationFn: (dto: CreateColumnDto) =>
       apiClient.post<Column>(`/boards/${boardId}/columns`, dto).then((res) => res.data),
@@ -77,7 +99,56 @@ export default function BoardDetailPage() {
     },
   })
 
-  const columns = data?.columns || []
+  const { mutate: reorderColumns } = useMutation({
+    mutationFn: async ({ columnId, order }: { columnId: string; order: number }) => {
+      return apiClient
+        .patch<Column>(`/boards/${boardId}/columns/${columnId}/order`, {
+          newOrder: order,
+        })
+        .then((res) => res.data)
+    },
+    onMutate: async ({ columnId, order }) => {
+      await queryClient.cancelQueries({ queryKey })
+
+      const previousData = queryClient.getQueryData<{ columns: Column[] }>(queryKey)
+
+      queryClient.setQueryData<{ columns: Column[] }>(queryKey, (old) => {
+        if (!old) return old
+
+        const newColumns = [...old.columns]
+        const oldIndex = newColumns.findIndex((col) => col.id === columnId)
+
+        if (oldIndex !== -1) {
+          const [movedColumn] = newColumns.splice(oldIndex, 1)
+          newColumns.splice(order, 0, movedColumn)
+        }
+
+        return { ...old, columns: newColumns }
+      })
+
+      return { previousData }
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(queryKey, context.previousData)
+      }
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey })
+    },
+  })
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const newIndex = columns.findIndex((col) => col.id === over.id)
+
+      if (newIndex !== -1) {
+        reorderColumns({ columnId: String(active.id), order: newIndex })
+      }
+    }
+  }
 
   const handleOpenModal = () => {
     setIsModalOpen(true)
@@ -122,24 +193,31 @@ export default function BoardDetailPage() {
       {columns.length === 0 ? (
         <Typography color="text.secondary">{t('detail.emptyColumns')}</Typography>
       ) : (
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2,
-            overflowX: 'auto',
-            pb: 2,
-            alignItems: 'flex-start',
-          }}
-        >
-          {[...columns].map((column) => (
-            <BoardColumn
-              key={column.id}
-              boardId={id ?? ''}
-              columnId={column.id}
-              title={column.title}
-            />
-          ))}
-        </Box>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext
+            items={columns.map((col) => col.id)}
+            strategy={horizontalListSortingStrategy}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 2,
+                overflowX: 'auto',
+                pb: 2,
+                alignItems: 'flex-start',
+              }}
+            >
+              {columns.map((column) => (
+                <BoardColumn
+                  key={column.id}
+                  boardId={id ?? ''}
+                  columnId={column.id}
+                  title={column.title}
+                />
+              ))}
+            </Box>
+          </SortableContext>
+        </DndContext>
       )}
 
       <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="xs">

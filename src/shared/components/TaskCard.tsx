@@ -15,6 +15,9 @@ import {
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { apiClient } from '../../api/client'
 import type { Task } from '../interfaces/Task'
 import { useTranslation } from 'react-i18next'
@@ -35,6 +38,15 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
   const { t } = useTranslation(['board', 'auth', 'profile'])
   const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
 
   const {
     register,
@@ -107,6 +119,8 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
   return (
     <>
       <Paper
+        ref={setNodeRef}
+        style={style}
         elevation={1}
         sx={{
           p: 1.5,
@@ -133,17 +147,32 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
             top: 4,
             right: 4,
             display: 'flex',
+            alignItems: 'center',
             gap: 0.2,
-            backgroundColor: 'transparent',
-            backdropFilter: 'none',
-            borderRadius: 1,
           }}
         >
+          <Box
+            {...attributes}
+            {...listeners}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'grab',
+              color: 'action.active',
+              '&:active': {
+                cursor: 'grabbing',
+              },
+            }}
+          >
+            <DragIndicatorIcon fontSize="small" sx={{ fontSize: 16 }} />
+          </Box>
+
           <IconButton size="small" onClick={handleOpenModal} disabled={isUpdating}>
-            <EditIcon fontSize="small" style={{ fontSize: 16 }} />
+            <EditIcon fontSize="small" sx={{ fontSize: 16 }} />
           </IconButton>
+
           <IconButton size="small" color="error" onClick={handleDelete}>
-            <DeleteIcon fontSize="small" style={{ fontSize: 16 }} />
+            <DeleteIcon fontSize="small" sx={{ fontSize: 16 }} />
           </IconButton>
         </Box>
 

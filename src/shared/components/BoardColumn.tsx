@@ -17,12 +17,24 @@ import {
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import { apiClient } from '../../api/client'
 import type { Task } from '../interfaces/Task'
 import type { Column } from '../interfaces/Column'
 import { TaskCard } from './TaskCard'
 import { useTranslation } from 'react-i18next'
 import { useForm, type SubmitHandler } from 'react-hook-form'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
 
 interface BoardColumnProps {
   boardId: string
@@ -41,6 +53,16 @@ interface CreateTaskDto {
 }
 
 export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: columnId,
+  })
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
   const { t } = useTranslation(['board', 'auth', 'profile'])
   const queryClient = useQueryClient()
 
@@ -48,6 +70,16 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
   const [editedTitle, setEditedTitle] = useState(title)
 
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
+  const tasksQueryKey = ['board', boardId, 'columns', columnId, 'tasks']
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor),
+  )
 
   const {
     register: registerTask,
@@ -62,8 +94,6 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
       priority: 'LOW',
     },
   })
-
-  const tasksQueryKey = ['board', boardId, 'columns', columnId, 'tasks']
 
   const {
     data,
@@ -120,6 +150,70 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
 
   const tasks = data?.tasks || []
 
+  const { mutate: reorderTask } = useMutation({
+    mutationFn: ({
+      taskId,
+      newOrder,
+      newColumnId,
+    }: {
+      taskId: string
+      newOrder: number
+      newColumnId: string
+    }) => {
+      return apiClient
+        .patch<Task>(`/boards/${boardId}/columns/${columnId}/tasks/${taskId}/order`, {
+          newOrder,
+          newColumnId,
+        })
+        .then((res) => res.data)
+    },
+    onMutate: async ({ taskId, newOrder }) => {
+      await queryClient.cancelQueries({ queryKey: tasksQueryKey })
+
+      const previousData = queryClient.getQueryData<{ tasks: Task[] }>(tasksQueryKey)
+
+      queryClient.setQueryData<{ tasks: Task[] }>(tasksQueryKey, (old) => {
+        if (!old) return old
+
+        const newTasks = [...old.tasks]
+        const oldIndex = newTasks.findIndex((task) => task.id === taskId)
+
+        if (oldIndex !== -1) {
+          const [movedTask] = newTasks.splice(oldIndex, 1)
+          newTasks.splice(newOrder, 0, movedTask)
+        }
+
+        return { ...old, tasks: newTasks }
+      })
+
+      return { previousData }
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(tasksQueryKey, context.previousData)
+      }
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+    },
+  })
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) return
+
+    const newIndex = tasks.findIndex((task) => task.id === over.id)
+
+    if (newIndex === -1) return
+
+    reorderTask({
+      taskId: String(active.id),
+      newOrder: newIndex,
+      newColumnId: columnId,
+    })
+  }
+
   const handleSave = () => {
     const trimmedTitle = editedTitle.trim()
     if (!trimmedTitle || trimmedTitle === title) {
@@ -164,7 +258,9 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
 
   return (
     <Paper
-      elevation={2}
+      ref={setNodeRef}
+      style={style}
+      elevation={isDragging ? 6 : 2}
       sx={{
         p: 2,
         minHeight: 500,
@@ -185,6 +281,21 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
           pointerEvents: isDeleting ? 'none' : 'auto',
         }}
       >
+        <Box
+          {...attributes}
+          {...listeners}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'grab',
+            mr: 1,
+            color: 'action.active',
+            '&:active': { cursor: 'grabbing' },
+          }}
+        >
+          <DragIndicatorIcon fontSize="small" />
+        </Box>
+
         {isEditing ? (
           <TextField
             autoFocus
@@ -248,17 +359,36 @@ export function BoardColumn({ boardId, columnId, title }: BoardColumnProps) {
         </Alert>
       )}
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flexGrow: 1, mb: 2 }}>
-        {!isTasksLoading && !isTasksError && tasks.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', my: 4 }}>
-            {t('tasks.empty')}
-          </Typography>
-        ) : (
-          tasks.map((task) => (
-            <TaskCard key={task.id} boardId={boardId} columnId={columnId} task={task} />
-          ))
-        )}
-      </Box>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={tasks.map((task) => task.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1,
+              flexGrow: 1,
+              mb: 2,
+            }}
+          >
+            {!isTasksLoading && !isTasksError && tasks.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: 'center', my: 4 }}
+              >
+                {t('tasks.empty')}
+              </Typography>
+            ) : (
+              tasks.map((task) => (
+                <TaskCard key={task.id} boardId={boardId} columnId={columnId} task={task} />
+              ))
+            )}
+          </Box>
+        </SortableContext>
+      </DndContext>
 
       <Button
         variant="outlined"
