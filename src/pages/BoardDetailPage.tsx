@@ -29,6 +29,7 @@ import { BoardColumn } from '../shared/components/BoardColumn'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
+import type { Task } from '../shared/interfaces/Task'
 
 interface CreateColumnDto {
   title: string
@@ -46,7 +47,6 @@ export default function BoardDetailPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const boardId = id ?? ''
-  const queryKey = ['board', id]
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -99,7 +99,36 @@ export default function BoardDetailPage() {
     },
   })
 
-  const { mutate: reorderColumns } = useMutation({
+  const { mutate: reorderTask } = useMutation({
+    mutationFn: ({
+      taskId,
+      fromColumnId,
+      newColumnId,
+      newOrder,
+    }: {
+      taskId: string
+      fromColumnId: string
+      newColumnId: string
+      newOrder: number
+    }) =>
+      apiClient.patch(`/boards/${boardId}/columns/${fromColumnId}/tasks/${taskId}/order`, {
+        newOrder,
+        newColumnId,
+      }),
+
+    onSettled: async (_, __, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['board', boardId, 'columns', variables.fromColumnId, 'tasks'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['board', boardId, 'columns', variables.newColumnId, 'tasks'],
+        }),
+      ])
+    },
+  })
+
+  const { mutate: reorderColumn } = useMutation({
     mutationFn: async ({ columnId, order }: { columnId: string; order: number }) => {
       return apiClient
         .patch<Column>(`/boards/${boardId}/columns/${columnId}/order`, {
@@ -107,46 +136,96 @@ export default function BoardDetailPage() {
         })
         .then((res) => res.data)
     },
-    onMutate: async ({ columnId, order }) => {
-      await queryClient.cancelQueries({ queryKey })
 
-      const previousData = queryClient.getQueryData<{ columns: Column[] }>(queryKey)
-
-      queryClient.setQueryData<{ columns: Column[] }>(queryKey, (old) => {
-        if (!old) return old
-
-        const newColumns = [...old.columns]
-        const oldIndex = newColumns.findIndex((col) => col.id === columnId)
-
-        if (oldIndex !== -1) {
-          const [movedColumn] = newColumns.splice(oldIndex, 1)
-          newColumns.splice(order, 0, movedColumn)
-        }
-
-        return { ...old, columns: newColumns }
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['board', id],
       })
+    },
 
-      return { previousData }
-    },
-    onError: (_err, _variables, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(queryKey, context.previousData)
-      }
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey })
+    onError: (err) => {
+      console.error('Failed to reorder column', err)
     },
   })
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
 
-    if (over && active.id !== over.id) {
-      const newIndex = columns.findIndex((col) => col.id === over.id)
+    if (!over) {
+      return
+    }
 
-      if (newIndex !== -1) {
-        reorderColumns({ columnId: String(active.id), order: newIndex })
+    const activeId = String(active.id)
+    const overId = String(over.id)
+
+    if (activeId.startsWith('column-')) {
+      const activeColumnId = activeId.replace('column-', '')
+      const overColumnId = overId.replace('column-', '')
+
+      if (activeColumnId === overColumnId) {
+        return
       }
+
+      const newOrder = columns.findIndex((column) => column.id === overColumnId)
+
+      if (newOrder === -1) {
+        return
+      }
+
+      reorderColumn({
+        columnId: activeColumnId,
+        order: newOrder,
+      })
+
+      return
+    }
+
+    if (activeId.startsWith('task-')) {
+      const taskId = activeId.replace('task-', '')
+
+      let fromColumnId: string | undefined
+      let toColumnId: string | undefined
+      let newOrder = 0
+
+      for (const column of columns) {
+        const tasks =
+          queryClient.getQueryData<{ tasks: Task[] }>([
+            'board',
+            boardId,
+            'columns',
+            column.id,
+            'tasks',
+          ])?.tasks || []
+
+        const isTaskInCurrentColumn = tasks.some((task) => task.id === taskId)
+
+        if (isTaskInCurrentColumn) {
+          fromColumnId = column.id
+        }
+
+        if (overId === `column-${column.id}`) {
+          toColumnId = column.id
+          newOrder = tasks.length
+        }
+
+        const overTaskIndex = tasks.findIndex((task) => `task-${task.id}` === overId)
+
+        if (overTaskIndex !== -1) {
+          toColumnId = column.id
+          newOrder = overTaskIndex
+        }
+      }
+
+      if (!fromColumnId || !toColumnId) {
+        return
+      }
+
+      reorderTask({
+        taskId,
+        fromColumnId,
+        newColumnId: toColumnId,
+        newOrder,
+      })
     }
   }
 

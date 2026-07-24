@@ -39,7 +39,7 @@ export function TaskCard({ boardId, columnId, task }: TaskCardProps) {
   const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: task.id,
+    id: `task-${task.id}`,
   })
 
   const style = {
